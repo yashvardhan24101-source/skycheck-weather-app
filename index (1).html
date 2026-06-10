@@ -1,0 +1,1705 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>SkyCheck — Weather App by Yash</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #f0f4ff;
+        --bg2: #e8eef8;
+        --card: #ffffff;
+        --card2: #f5f8ff;
+        --border: #d0d9ee;
+        --accent: #2563eb;
+        --accent2: #1d4ed8;
+        --green: #059669;
+        --yellow: #d97706;
+        --red: #dc2626;
+        --orange: #ea580c;
+        --text: #111827;
+        --text2: #374151;
+        --text3: #6b7280;
+        --mono: "JetBrains Mono", monospace;
+        --sans: "Space Grotesk", sans-serif;
+        --r: 12px;
+        --r2: 8px;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      img {
+        display: block;
+      }
+
+      /* NAV */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.7rem 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+      }
+      .nav-logo {
+        font-size: 1.4rem;
+      }
+      .nav-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--accent2);
+        letter-spacing: -0.02em;
+      }
+      .nav-badge {
+        font-size: 0.65rem;
+        color: var(--text3);
+        font-family: var(--mono);
+        padding: 2px 6px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+      }
+      .nav-tabs {
+        display: flex;
+        gap: 0.25rem;
+      }
+      .nav-tab {
+        padding: 0.35rem 0.85rem;
+        border-radius: var(--r2);
+        color: var(--text2);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        transition: 0.15s;
+      }
+      .nav-tab:hover {
+        color: var(--text);
+        background: var(--card2);
+      }
+      .nav-tab.active {
+        color: var(--accent);
+        background: rgba(37, 99, 235, 0.1);
+      }
+
+      /* LAYOUT */
+      .page {
+        display: none;
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+      .page.active {
+        display: block;
+      }
+
+      /* SEARCH */
+      .search-row {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .search-input {
+        flex: 1;
+        padding: 0.72rem 1rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r2);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      }
+      .search-input:focus {
+        border-color: var(--accent);
+      }
+      .search-input::placeholder {
+        color: var(--text3);
+      }
+      .btn {
+        padding: 0.7rem 1.2rem;
+        border-radius: var(--r2);
+        border: none;
+        font-family: var(--sans);
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: 0.15s;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--accent2);
+        transform: translateY(-1px);
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text2);
+      }
+      .btn-outline:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-green {
+        background: var(--green);
+        color: #000;
+        font-weight: 600;
+      }
+      .btn-green:hover {
+        opacity: 0.85;
+      }
+      .btn-danger {
+        background: rgba(245, 101, 101, 0.12);
+        color: var(--red);
+        border: 1px solid rgba(245, 101, 101, 0.3);
+      }
+      .btn-danger:hover {
+        background: rgba(245, 101, 101, 0.22);
+      }
+      .btn-sm {
+        padding: 0.38rem 0.75rem;
+        font-size: 0.8rem;
+      }
+      .btn-xs {
+        padding: 0.25rem 0.55rem;
+        font-size: 0.72rem;
+      }
+
+      .gps-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.9rem;
+        background: rgba(62, 207, 142, 0.08);
+        border: 1px solid rgba(62, 207, 142, 0.25);
+        border-radius: var(--r2);
+        color: var(--green);
+        font-size: 0.82rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.15s;
+        margin-bottom: 1.25rem;
+        font-family: var(--sans);
+      }
+      .gps-btn:hover {
+        background: rgba(62, 207, 142, 0.15);
+      }
+      .gps-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ERRORS / LOADING */
+      .err {
+        background: rgba(245, 101, 101, 0.1);
+        border: 1px solid rgba(245, 101, 101, 0.3);
+        border-radius: var(--r2);
+        padding: 0.85rem 1rem;
+        color: var(--red);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .loading {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: var(--text3);
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+      .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* SECTION TITLE */
+      .sec {
+        font-size: 0.7rem;
+        font-family: var(--mono);
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .sec::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* WEATHER HERO */
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #1e40af 0%,
+          #2563eb 55%,
+          #1d4ed8 100%
+        );
+        border: 1px solid #1d4ed8;
+        border-radius: var(--r);
+        padding: 1.75rem;
+        margin-bottom: 1.25rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.25);
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -30%;
+        right: -5%;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.12) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .hero-loc {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.75);
+        font-family: var(--mono);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.4rem;
+      }
+      .hero-city {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+        line-height: 1.2;
+        color: #fff;
+      }
+      .hero-desc {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        text-transform: capitalize;
+        margin-bottom: 1.25rem;
+      }
+      .hero-main {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .hero-temp {
+        font-size: 4.5rem;
+        font-weight: 700;
+        font-family: var(--mono);
+        line-height: 1;
+        color: #fff;
+      }
+      .hero-icon {
+        width: 72px;
+        height: 72px;
+        filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.3));
+      }
+      .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .hero-meta span {
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .hero-meta .bold {
+        font-size: 0.9rem;
+        color: #fff;
+        font-weight: 600;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 0.6rem;
+      }
+      .stat {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: var(--r2);
+        padding: 0.65rem;
+        backdrop-filter: blur(4px);
+      }
+      .stat-l {
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: var(--mono);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.2rem;
+      }
+      .stat-v {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      /* FORECAST */
+      .forecast {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.65rem;
+        margin-bottom: 1.25rem;
+      }
+      .fc {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r2);
+        padding: 0.85rem 0.65rem;
+        text-align: center;
+        transition: border-color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      }
+      .fc:hover {
+        border-color: var(--accent);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+      }
+      .fc-day {
+        font-size: 0.68rem;
+        font-family: var(--mono);
+        color: var(--text3);
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+      }
+      .fc-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 0.4rem;
+      }
+      .fc-desc {
+        font-size: 0.65rem;
+        color: var(--text2);
+        text-transform: capitalize;
+        margin-bottom: 0.4rem;
+        line-height: 1.3;
+        min-height: 2em;
+      }
+      .fc-temps {
+        display: flex;
+        justify-content: center;
+        gap: 0.4rem;
+        font-family: var(--mono);
+        font-size: 0.8rem;
+      }
+      .fc-hi {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .fc-lo {
+        color: var(--text3);
+      }
+      .fc-info {
+        font-size: 0.6rem;
+        color: var(--text3);
+        font-family: var(--mono);
+        margin-top: 0.3rem;
+      }
+
+      /* SAVE PANEL */
+      .save-panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+      }
+      .form-row {
+        display: flex;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+      }
+      .fg {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        flex: 1;
+        min-width: 130px;
+      }
+      .fg label {
+        font-size: 0.68rem;
+        color: var(--text3);
+        font-family: var(--mono);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .form-input {
+        padding: 0.55rem 0.75rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--r2);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 0.875rem;
+        outline: none;
+        width: 100%;
+      }
+      .form-input:focus {
+        border-color: var(--accent);
+      }
+      .ok-msg {
+        font-size: 0.82rem;
+        color: var(--green);
+        margin-bottom: 0.6rem;
+      }
+      .err-msg {
+        font-size: 0.82rem;
+        color: var(--red);
+        margin-bottom: 0.6rem;
+      }
+
+      /* MAP */
+      .map-frame {
+        width: 100%;
+        height: 300px;
+        border-radius: var(--r2);
+        border: 1px solid var(--border);
+        margin-bottom: 1.25rem;
+      }
+
+      /* VIDEOS */
+      .videos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+        gap: 0.65rem;
+        margin-bottom: 1.25rem;
+      }
+      .vid {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r2);
+        overflow: hidden;
+        display: block;
+        transition:
+          border-color 0.15s,
+          transform 0.15s;
+      }
+      .vid:hover {
+        border-color: rgba(37, 99, 235, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+      }
+      .vid img {
+        width: 100%;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+      }
+      .vid-info {
+        padding: 0.55rem 0.7rem;
+      }
+      .vid-title {
+        font-size: 0.775rem;
+        font-weight: 500;
+        color: var(--text);
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .vid-ch {
+        font-size: 0.68rem;
+        color: var(--text3);
+        margin-top: 0.25rem;
+        font-family: var(--mono);
+      }
+
+      /* AI INSIGHT */
+      .ai-box {
+        background: linear-gradient(
+          135deg,
+          rgba(37, 99, 235, 0.06),
+          rgba(29, 78, 216, 0.03)
+        );
+        border: 1px solid rgba(37, 99, 235, 0.2);
+        border-radius: var(--r);
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 1px 6px rgba(37, 99, 235, 0.08);
+      }
+      .ai-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .ai-badge {
+        font-size: 0.65rem;
+        font-family: var(--mono);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 2px 7px;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--accent);
+        border-radius: 4px;
+      }
+      .ai-text {
+        font-size: 0.875rem;
+        color: var(--text2);
+        line-height: 1.65;
+        white-space: pre-wrap;
+      }
+      .ai-loading {
+        font-size: 0.82rem;
+        color: var(--text3);
+        font-style: italic;
+      }
+
+      /* RECORDS */
+      .rec-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.25rem;
+      }
+      .rec-header h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        flex: 1;
+        min-width: 120px;
+      }
+      .export-btns {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+      .exp-btn {
+        padding: 0.35rem 0.65rem;
+        border-radius: var(--r2);
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text2);
+        font-size: 0.7rem;
+        font-family: var(--mono);
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .exp-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(37, 99, 235, 0.07);
+      }
+
+      .rec-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 0.65rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.75rem;
+        align-items: start;
+        transition: border-color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      }
+      .rec-card:hover {
+        border-color: rgba(37, 99, 235, 0.35);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+      }
+      .rec-loc {
+        font-size: 0.975rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+      }
+      .rec-dates {
+        font-size: 0.75rem;
+        color: var(--text3);
+        font-family: var(--mono);
+        margin-bottom: 0.45rem;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+      .chip {
+        font-size: 0.7rem;
+        padding: 0.18rem 0.45rem;
+        background: var(--bg2);
+        border-radius: 4px;
+        color: var(--text2);
+        font-family: var(--mono);
+      }
+      .rec-note {
+        font-size: 0.775rem;
+        color: var(--text3);
+        font-style: italic;
+        margin-top: 0.4rem;
+      }
+      .rec-saved {
+        font-size: 0.65rem;
+        color: var(--text3);
+        font-family: var(--mono);
+        margin-top: 0.4rem;
+      }
+      .rec-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      /* MODAL */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(4px);
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .modal {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 460px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      }
+      .modal h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 1.1rem;
+      }
+
+      /* EMPTY */
+      .empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text3);
+      }
+      .empty-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .empty p {
+        font-size: 0.875rem;
+        margin-bottom: 0.35rem;
+      }
+
+      /* FOOTER */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 1.1rem 1.5rem;
+        background: var(--card);
+        margin-top: 2rem;
+        box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.04);
+      }
+      .foot-inner {
+        max-width: 1080px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .foot-l {
+        font-size: 0.82rem;
+        color: var(--text2);
+      }
+      .foot-l strong {
+        color: var(--text);
+      }
+      .foot-r {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        max-width: 480px;
+      }
+      .foot-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--accent);
+        font-family: var(--mono);
+      }
+      .foot-desc {
+        font-size: 0.72rem;
+        color: var(--text3);
+        line-height: 1.55;
+      }
+
+      @media (max-width: 640px) {
+        .forecast {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .hero-temp {
+          font-size: 3rem;
+        }
+        .page {
+          padding: 1.25rem 1rem;
+        }
+        .nav {
+          padding: 0.6rem 1rem;
+        }
+        .rec-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .export-btns {
+          flex-wrap: wrap;
+        }
+      }
+      @media (max-width: 400px) {
+        .forecast {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-brand">
+        <span class="nav-logo">⛅</span>
+        <span class="nav-name">SkyCheck</span>
+        <span class="nav-badge">v1.0</span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showPage('weather', this)">
+          Weather
+        </button>
+        <button class="nav-tab" onclick="showPage('records', this)">
+          Records
+        </button>
+      </div>
+    </nav>
+
+    <!-- WEATHER PAGE -->
+    <div class="page active" id="page-weather">
+      <div class="search-row">
+        <input
+          class="search-input"
+          id="search-input"
+          placeholder="City, zip code, landmark or coordinates (lat,lon)…"
+          onkeydown="if (event.key === 'Enter') doSearch();"
+        />
+        <button class="btn btn-primary" id="search-btn" onclick="doSearch()">
+          Search
+        </button>
+      </div>
+
+      <button class="gps-btn" id="gps-btn" onclick="doGPS()">
+        📍 Use my current location
+      </button>
+
+      <div class="err" id="weather-err" style="display: none"></div>
+      <div class="loading" id="weather-loading" style="display: none">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <span style="margin-left: 0.6rem; font-size: 0.875rem"
+          >Fetching weather…</span
+        >
+      </div>
+
+      <div id="weather-results" style="display: none">
+        <!-- Current Weather -->
+        <div class="hero" id="hero-card">
+          <div class="hero-loc" id="hero-loc">📍 Current Weather</div>
+          <div class="hero-city" id="hero-city"></div>
+          <div class="hero-desc" id="hero-desc"></div>
+          <div class="hero-main">
+            <div class="hero-temp" id="hero-temp"></div>
+            <img class="hero-icon" id="hero-icon" src="" alt="weather" />
+            <div class="hero-meta">
+              <span id="hero-feels"></span>
+              <span class="bold" id="hero-hilo"></span>
+              <span id="hero-sun"></span>
+            </div>
+          </div>
+          <div class="stats" id="stats-grid"></div>
+          <div
+            style="
+              margin-top: 1rem;
+              display: flex;
+              gap: 0.5rem;
+              flex-wrap: wrap;
+            "
+          >
+            <button
+              class="btn btn-outline btn-sm"
+              id="save-toggle-btn"
+              onclick="toggleSave()"
+            >
+              + Save to Records
+            </button>
+          </div>
+        </div>
+
+        <!-- Save Panel -->
+        <div class="save-panel" id="save-panel" style="display: none">
+          <div class="sec">Save Record</div>
+          <div class="form-row">
+            <div class="fg">
+              <label>Start Date</label>
+              <input type="date" class="form-input" id="save-start" />
+            </div>
+            <div class="fg">
+              <label>End Date</label>
+              <input type="date" class="form-input" id="save-end" />
+            </div>
+          </div>
+          <div class="fg" style="margin-bottom: 0.85rem">
+            <label>Notes (optional)</label>
+            <input
+              class="form-input"
+              id="save-notes"
+              placeholder="Any notes about this trip…"
+            />
+          </div>
+          <div id="save-status"></div>
+          <button class="btn btn-green btn-sm" onclick="saveRecord()">
+            Save Record
+          </button>
+        </div>
+
+        <!-- AI Insight -->
+        <div class="ai-box" id="ai-box">
+          <div class="ai-header">
+            <span class="ai-badge">✦ AI Insight</span>
+            <span
+              style="
+                font-size: 0.78rem;
+                color: var(--text3);
+                font-family: var(--mono);
+              "
+              id="ai-loc-label"
+            ></span>
+          </div>
+          <div id="ai-content" class="ai-loading">
+            Analyzing weather conditions…
+          </div>
+        </div>
+
+        <!-- 5-Day Forecast -->
+        <div class="sec">5-Day Forecast</div>
+        <div class="forecast" id="forecast-grid"></div>
+
+        <!-- Map -->
+        <div id="map-section" style="display: none">
+          <div class="sec">Map</div>
+          <iframe
+            class="map-frame"
+            id="map-frame"
+            src=""
+            title="Location Map"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+
+        <!-- YouTube Videos -->
+        <div id="videos-section" style="display: none">
+          <div class="sec" id="videos-title">Explore</div>
+          <div class="videos" id="videos-grid"></div>
+        </div>
+      </div>
+      <!-- /weather-results -->
+
+      <div class="empty" id="weather-empty">
+        <div class="empty-icon">🌍</div>
+        <p>Search any city, zip code, landmark, or coordinates.</p>
+        <p style="font-size: 0.78rem; margin-top: 0.3rem; color: var(--text3)">
+          Examples: "Tokyo", "10001", "Eiffel Tower", "28.6,77.2"
+        </p>
+      </div>
+    </div>
+    <!-- /page-weather -->
+
+    <!-- RECORDS PAGE -->
+    <div class="page" id="page-records">
+      <div class="rec-header">
+        <h1>Weather Records</h1>
+        <span
+          style="
+            font-size: 0.78rem;
+            color: var(--text3);
+            font-family: var(--mono);
+          "
+          id="rec-count"
+        ></span>
+        <div class="export-btns">
+          <button class="exp-btn" onclick="exportJSON()">↓ JSON</button>
+          <button class="exp-btn" onclick="exportCSV()">↓ CSV</button>
+          <button class="exp-btn" onclick="exportMarkdown()">↓ MD</button>
+          <button class="exp-btn" onclick="exportXML()">↓ XML</button>
+        </div>
+      </div>
+      <div class="search-row" style="margin-bottom: 1.25rem">
+        <input
+          class="search-input"
+          id="rec-search"
+          placeholder="Search by location…"
+          oninput="renderRecords()"
+        />
+      </div>
+      <div class="err" id="rec-err" style="display: none"></div>
+      <div id="rec-list"></div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div
+      class="overlay"
+      id="edit-overlay"
+      style="display: none"
+      onclick="if (event.target === this) closeEdit();"
+    >
+      <div class="modal">
+        <h3>Edit Record</h3>
+        <div class="fg" style="margin-bottom: 0.75rem">
+          <label>Location</label>
+          <input class="form-input" id="edit-loc" />
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Start Date</label
+            ><input type="date" class="form-input" id="edit-start" />
+          </div>
+          <div class="fg">
+            <label>End Date</label
+            ><input type="date" class="form-input" id="edit-end" />
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom: 1rem">
+          <label>Notes</label>
+          <input
+            class="form-input"
+            id="edit-notes"
+            placeholder="Optional notes…"
+          />
+        </div>
+        <div
+          id="edit-status"
+          style="font-size: 0.82rem; margin-bottom: 0.65rem"
+        ></div>
+        <div style="display: flex; gap: 0.5rem">
+          <button class="btn btn-primary btn-sm" onclick="saveEdit()">
+            Save Changes
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="closeEdit()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELETE MODAL -->
+    <div
+      class="overlay"
+      id="del-overlay"
+      style="display: none"
+      onclick="if (event.target === this) closeDelete();"
+    >
+      <div class="modal">
+        <h3>Delete this record?</h3>
+        <p
+          style="
+            color: var(--text2);
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+          "
+        >
+          This cannot be undone.
+        </p>
+        <div style="display: flex; gap: 0.5rem">
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete()">
+            Yes, Delete
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="closeDelete()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="foot-inner">
+        <div class="foot-l">
+          <strong>Built by Yash</strong> · PM Accelerator Technical Assessment ·
+          IIIT Naya Raipur
+        </div>
+        <div class="foot-r">
+          <span class="foot-badge">PM Accelerator</span>
+          <span class="foot-desc"
+            >Product Manager Accelerator is a comprehensive program helping
+            aspiring PMs break into product management through hands-on
+            projects, mentorship, and real-world experience with top tech
+            companies.</span
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // ─── CONFIG — replace with your real keys ───────────────────────────────────
+      const OW_KEY = "3713a7e6ced52f88260cbcfa8e094efe"; // 👈 PASTE YOUR OPENWEATHERMAP KEY HERE
+      const YT_KEY = "AIzaSyA7lnXDX25SMnVaEGSCyttZyIqnRaLi2Pk"; // 👈 PASTE YOUR YOUTUBE KEY HERE (optional)
+      const GM_KEY = "AIzaSyA7lnXDX25SMnVaEGSCyttZyIqnRaLi2Pk"; // 👈 PASTE YOUR GOOGLE MAPS KEY HERE (optional)
+      // ─────────────────────────────────────────────────────────────────────────────
+
+      const RECORDS_KEY = "skycheck_records";
+      let records = JSON.parse(localStorage.getItem(RECORDS_KEY) || "[]");
+      let currentWeatherData = null;
+      let editingId = null;
+      let deletingId = null;
+
+      function saveRecords() {
+        localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+      }
+      function genId() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2);
+      }
+
+      // ── PAGE NAV ──────────────────────────────────────────────────────────────────
+      function showPage(name, btn) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-tab")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("page-" + name).classList.add("active");
+        btn.classList.add("active");
+        if (name === "records") renderRecords();
+      }
+
+      // ── UTILS ─────────────────────────────────────────────────────────────────────
+      function fmtDay(dateStr) {
+        const d = new Date(dateStr + "T12:00:00");
+        return d.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        });
+      }
+      function fmtTime(unix, tz) {
+        const d = new Date((unix + tz) * 1000);
+        const h = Math.floor(((unix + tz) / 3600) % 24);
+        const m = Math.floor(((unix + tz) / 60) % 60);
+        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")} UTC`;
+      }
+      const DIR = [
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW",
+      ];
+      function windDir(deg) {
+        return DIR[Math.round(deg / 22.5) % 16];
+      }
+      function setErr(id, msg) {
+        const el = document.getElementById(id);
+        el.innerHTML = "⚠️ " + msg;
+        el.style.display = "flex";
+      }
+      function clearErr(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      // ── RESOLVE LOCATION → lat/lon ────────────────────────────────────────────────
+      async function resolveLocation(loc) {
+        const coordMatch = loc.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
+        if (coordMatch)
+          return { lat: +coordMatch[1], lon: +coordMatch[2], name: loc };
+
+        const zipMatch = loc.match(/^\d{5}(-\d{4})?$/);
+        if (zipMatch) {
+          const r = await fetch(
+            `https://api.openweathermap.org/geo/1.0/zip?zip=${loc},US&appid=${OW_KEY}`,
+          ).then((r) => r.json());
+          if (r.cod) throw new Error("ZIP code not found");
+          return { lat: r.lat, lon: r.lon, name: r.name };
+        }
+        const r = await fetch(
+          `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(loc)}&limit=1&appid=${OW_KEY}`,
+        ).then((r) => r.json());
+        if (!r.length)
+          throw new Error(
+            `"${loc}" not found. Try a different spelling or add the country (e.g. "Paris, FR").`,
+          );
+        return {
+          lat: r[0].lat,
+          lon: r[0].lon,
+          name: `${r[0].name}, ${r[0].country}`,
+        };
+      }
+
+      // ── MAIN SEARCH ───────────────────────────────────────────────────────────────
+      async function doSearch() {
+        const q = document.getElementById("search-input").value.trim();
+        if (!q) return;
+        await fetchWeather(q);
+      }
+
+      async function doGPS() {
+        const btn = document.getElementById("gps-btn");
+        if (!navigator.geolocation)
+          return setErr(
+            "weather-err",
+            "Geolocation not supported by this browser.",
+          );
+        btn.textContent = "📍 Getting location…";
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            btn.textContent = "📍 Use my current location";
+            btn.disabled = false;
+            await fetchWeather(
+              `${pos.coords.latitude.toFixed(4)},${pos.coords.longitude.toFixed(4)}`,
+            );
+          },
+          () => {
+            btn.textContent = "📍 Use my current location";
+            btn.disabled = false;
+            setErr(
+              "weather-err",
+              "Location access denied. Please allow location or enter manually.",
+            );
+          },
+        );
+      }
+
+      async function fetchWeather(loc) {
+        clearErr("weather-err");
+        document.getElementById("weather-results").style.display = "none";
+        document.getElementById("weather-empty").style.display = "none";
+        document.getElementById("weather-loading").style.display = "flex";
+        document.getElementById("search-btn").disabled = true;
+        document.getElementById("map-section").style.display = "none";
+        document.getElementById("videos-section").style.display = "none";
+        document.getElementById("save-panel").style.display = "none";
+
+        try {
+          const { lat, lon, name } = await resolveLocation(loc);
+
+          const [wRes, fRes] = await Promise.all([
+            fetch(
+              `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OW_KEY}&units=metric`,
+            ).then((r) => r.json()),
+            fetch(
+              `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${OW_KEY}&units=metric`,
+            ).then((r) => r.json()),
+          ]);
+
+          if (wRes.cod && wRes.cod !== 200)
+            throw new Error(wRes.message || "Weather fetch failed");
+
+          currentWeatherData = {
+            lat,
+            lon,
+            name,
+            weather: wRes,
+            forecast: fRes,
+          };
+          renderWeather(wRes, fRes, name, lat, lon);
+
+          // AI insight (non-blocking)
+          getAIInsight(wRes, name);
+
+          // Map & YouTube (non-blocking, only if keys set)
+          if (GM_KEY !== "YOUR_GOOGLE_MAPS_API_KEY") {
+            const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${GM_KEY}&q=${encodeURIComponent(name)}&zoom=12`;
+            document.getElementById("map-frame").src = embedUrl;
+            document.getElementById("map-section").style.display = "block";
+          }
+          if (YT_KEY !== "YOUR_YOUTUBE_API_KEY") {
+            fetchYouTube(name);
+          }
+        } catch (e) {
+          setErr(
+            "weather-err",
+            e.message ||
+              "Something went wrong. Check the location and try again.",
+          );
+          document.getElementById("weather-empty").style.display = "block";
+        } finally {
+          document.getElementById("weather-loading").style.display = "none";
+          document.getElementById("search-btn").disabled = false;
+        }
+      }
+
+      function renderWeather(w, f, name) {
+        document.getElementById("hero-city").textContent = name;
+        document.getElementById("hero-loc").textContent = "📍 Current Weather";
+        document.getElementById("hero-desc").textContent =
+          w.weather[0].description;
+        document.getElementById("hero-temp").textContent =
+          Math.round(w.main.temp) + "°";
+        document.getElementById("hero-icon").src =
+          `https://openweathermap.org/img/wn/${w.weather[0].icon}@2x.png`;
+        document.getElementById("hero-feels").textContent =
+          `Feels like ${Math.round(w.main.feels_like)}°C`;
+        document.getElementById("hero-hilo").textContent =
+          `H: ${Math.round(w.main.temp_max)}° · L: ${Math.round(w.main.temp_min)}°`;
+        document.getElementById("ai-loc-label").textContent = name;
+        document.getElementById("ai-content").className = "ai-loading";
+        document.getElementById("ai-content").textContent =
+          "Analyzing weather conditions…";
+
+        if (w.sys?.sunrise) {
+          document.getElementById("hero-sun").textContent =
+            `🌅 ${fmtTime(w.sys.sunrise, w.timezone)} · 🌇 ${fmtTime(w.sys.sunset, w.timezone)}`;
+        }
+
+        const stats = [
+          ["💧", "Humidity", w.main.humidity + "%"],
+          ["💨", "Wind", `${w.wind.speed} m/s ${windDir(w.wind.deg)}`],
+          ["🌡️", "Pressure", w.main.pressure + " hPa"],
+          [
+            "👁️",
+            "Visibility",
+            w.visibility ? (w.visibility / 1000).toFixed(1) + " km" : "N/A",
+          ],
+        ];
+        document.getElementById("stats-grid").innerHTML = stats
+          .map(
+            ([ic, l, v]) =>
+              `<div class="stat"><div class="stat-l">${ic} ${l}</div><div class="stat-v">${v}</div></div>`,
+          )
+          .join("");
+
+        // Forecast
+        const daily = {};
+        f.list.forEach((item) => {
+          const date = item.dt_txt.split(" ")[0];
+          const hour = item.dt_txt.split(" ")[1];
+          if (!daily[date] || hour === "12:00:00") {
+            daily[date] = {
+              date,
+              tMin: item.main.temp_min,
+              tMax: item.main.temp_max,
+              desc: item.weather[0].description,
+              icon: item.weather[0].icon,
+              hum: item.main.humidity,
+              wind: item.wind.speed,
+            };
+          } else {
+            daily[date].tMin = Math.min(daily[date].tMin, item.main.temp_min);
+            daily[date].tMax = Math.max(daily[date].tMax, item.main.temp_max);
+          }
+        });
+        const days = Object.values(daily).slice(0, 5);
+        document.getElementById("forecast-grid").innerHTML = days
+          .map(
+            (d) =>
+              `<div class="fc">
+      <div class="fc-day">${fmtDay(d.date)}</div>
+      <img class="fc-icon" src="https://openweathermap.org/img/wn/${d.icon}@2x.png" alt="${d.desc}"/>
+      <div class="fc-desc">${d.desc}</div>
+      <div class="fc-temps"><span class="fc-hi">${Math.round(d.tMax)}°</span><span class="fc-lo">${Math.round(d.tMin)}°</span></div>
+      <div class="fc-info">💧${d.hum}% 💨${d.wind}m/s</div>
+    </div>`,
+          )
+          .join("");
+
+        document.getElementById("weather-results").style.display = "block";
+      }
+
+      // ── AI INSIGHT via Anthropic API ──────────────────────────────────────────────
+      async function getAIInsight(w, name) {
+        const el = document.getElementById("ai-content");
+        try {
+          const prompt = `You are a helpful weather assistant. Given this weather data for ${name}, write a 3-4 sentence practical insight for a traveler or local. Include: what to wear, any safety considerations, best activities for this weather, and one interesting tip. Keep it friendly and conversational. Do NOT use bullet points.
+
+Weather: ${w.weather[0].description}, Temp: ${Math.round(w.main.temp)}°C, Feels like: ${Math.round(w.main.feels_like)}°C, Humidity: ${w.main.humidity}%, Wind: ${w.wind.speed} m/s, Pressure: ${w.main.pressure} hPa, Visibility: ${w.visibility ? (w.visibility / 1000).toFixed(1) + "km" : "N/A"}`;
+
+          const res = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1000,
+              messages: [{ role: "user", content: prompt }],
+            }),
+          });
+          const data = await res.json();
+          const text = data.content?.[0]?.text || "AI insight unavailable.";
+          el.className = "ai-text";
+          el.textContent = text;
+        } catch (e) {
+          el.className = "ai-text";
+          el.textContent = "AI insight currently unavailable.";
+        }
+      }
+
+      // ── YOUTUBE ───────────────────────────────────────────────────────────────────
+      async function fetchYouTube(name) {
+        try {
+          const q = encodeURIComponent(name.split(",")[0] + " travel guide");
+          const res = await fetch(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&maxResults=4&key=${YT_KEY}`,
+          ).then((r) => r.json());
+          if (!res.items?.length) return;
+          document.getElementById("videos-title").innerHTML =
+            `Explore ${name.split(",")[0]} <span style="font-family:var(--mono);font-size:.65rem;color:var(--text3);font-style:normal">via YouTube</span>`;
+          document.getElementById("videos-grid").innerHTML = res.items
+            .map(
+              (v) =>
+                `<a class="vid" href="https://www.youtube.com/watch?v=${v.id.videoId}" target="_blank" rel="noreferrer">
+        <img src="${v.snippet.thumbnails.medium.url}" alt="${v.snippet.title}" loading="lazy"/>
+        <div class="vid-info">
+          <div class="vid-title">${v.snippet.title}</div>
+          <div class="vid-ch">${v.snippet.channelTitle}</div>
+        </div>
+      </a>`,
+            )
+            .join("");
+          document.getElementById("videos-section").style.display = "block";
+        } catch (e) {}
+      }
+
+      // ── SAVE RECORD ───────────────────────────────────────────────────────────────
+      function toggleSave() {
+        const p = document.getElementById("save-panel");
+        const open = p.style.display !== "none";
+        p.style.display = open ? "none" : "block";
+        document.getElementById("save-toggle-btn").textContent = open
+          ? "+ Save to Records"
+          : "Cancel";
+        document.getElementById("save-status").innerHTML = "";
+        if (!open) {
+          const today = new Date().toISOString().split("T")[0];
+          document.getElementById("save-start").value = today;
+          document.getElementById("save-end").value = today;
+          document.getElementById("save-notes").value = "";
+        }
+      }
+
+      async function saveRecord() {
+        const start = document.getElementById("save-start").value;
+        const end = document.getElementById("save-end").value;
+        const notes = document.getElementById("save-notes").value.trim();
+        const st = document.getElementById("save-status");
+        if (!start || !end)
+          return (st.innerHTML =
+            '<div class="err-msg">Both dates are required.</div>');
+        if (new Date(start) > new Date(end))
+          return (st.innerHTML =
+            '<div class="err-msg">Start date must be before end date.</div>');
+        if (!currentWeatherData) return;
+
+        const w = currentWeatherData.weather;
+        const f = currentWeatherData.forecast;
+        const daily = {};
+        f.list.forEach((item) => {
+          const date = item.dt_txt.split(" ")[0];
+          const hour = item.dt_txt.split(" ")[1];
+          if (!daily[date] || hour === "12:00:00")
+            daily[date] = {
+              date,
+              tMin: item.main.temp_min,
+              tMax: item.main.temp_max,
+              desc: item.weather[0].description,
+              icon: item.weather[0].icon,
+              hum: item.main.humidity,
+              wind: item.wind.speed,
+            };
+          else {
+            daily[date].tMin = Math.min(daily[date].tMin, item.main.temp_min);
+            daily[date].tMax = Math.max(daily[date].tMax, item.main.temp_max);
+          }
+        });
+
+        records.unshift({
+          id: genId(),
+          location: currentWeatherData.name,
+          coordinates: {
+            lat: currentWeatherData.lat,
+            lon: currentWeatherData.lon,
+          },
+          dateRange: { startDate: start, endDate: end },
+          weatherData: {
+            temperature: w.main.temp,
+            feelsLike: w.main.feels_like,
+            humidity: w.main.humidity,
+            windSpeed: w.wind.speed,
+            description: w.weather[0].description,
+            icon: w.weather[0].icon,
+            pressure: w.main.pressure,
+            visibility: w.visibility,
+          },
+          forecastData: Object.values(daily).slice(0, 5),
+          notes,
+          createdAt: new Date().toISOString(),
+        });
+        saveRecords();
+        st.innerHTML = '<div class="ok-msg">✓ Saved to records!</div>';
+        setTimeout(toggleSave, 1200);
+      }
+
+      // ── RECORDS PAGE ──────────────────────────────────────────────────────────────
+      function renderRecords() {
+        const q = document.getElementById("rec-search").value.toLowerCase();
+        const filtered = records.filter((r) =>
+          r.location.toLowerCase().includes(q),
+        );
+        document.getElementById("rec-count").textContent =
+          `${filtered.length} record${filtered.length !== 1 ? "s" : ""}`;
+        if (!filtered.length) {
+          document.getElementById("rec-list").innerHTML =
+            `<div class="empty"><div class="empty-icon">📭</div><p>${records.length ? "No records match your search." : 'No records yet. Search weather and click "+ Save to Records".'}</p></div>`;
+          return;
+        }
+        document.getElementById("rec-list").innerHTML = filtered
+          .map(
+            (r) => `
+    <div class="rec-card" id="rc-${r.id}">
+      <div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem">
+          ${r.weatherData?.icon ? `<img src="https://openweathermap.org/img/wn/${r.weatherData.icon}.png" style="width:26px;height:26px" alt=""/>` : ""}
+          <div class="rec-loc">${r.location}</div>
+        </div>
+        <div class="rec-dates">${r.dateRange.startDate} → ${r.dateRange.endDate}</div>
+        <div class="chips">
+          ${r.weatherData?.temperature != null ? `<span class="chip">🌡 ${Math.round(r.weatherData.temperature)}°C</span>` : ""}
+          ${r.weatherData?.humidity != null ? `<span class="chip">💧 ${r.weatherData.humidity}%</span>` : ""}
+          ${r.weatherData?.windSpeed != null ? `<span class="chip">💨 ${r.weatherData.windSpeed} m/s</span>` : ""}
+          ${r.weatherData?.description ? `<span class="chip">${r.weatherData.description}</span>` : ""}
+        </div>
+        ${r.notes ? `<div class="rec-note">"${r.notes}"</div>` : ""}
+        <div class="rec-saved">Saved ${new Date(r.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</div>
+      </div>
+      <div class="rec-actions">
+        <button class="btn btn-outline btn-xs" onclick="openEdit('${r.id}')">Edit</button>
+        <button class="btn btn-danger btn-xs" onclick="openDelete('${r.id}')">Delete</button>
+      </div>
+    </div>
+  `,
+          )
+          .join("");
+      }
+
+      // ── EDIT ──────────────────────────────────────────────────────────────────────
+      function openEdit(id) {
+        const r = records.find((x) => x.id === id);
+        if (!r) return;
+        editingId = id;
+        document.getElementById("edit-loc").value = r.location;
+        document.getElementById("edit-start").value = r.dateRange.startDate;
+        document.getElementById("edit-end").value = r.dateRange.endDate;
+        document.getElementById("edit-notes").value = r.notes || "";
+        document.getElementById("edit-status").innerHTML = "";
+        document.getElementById("edit-overlay").style.display = "flex";
+      }
+      function closeEdit() {
+        document.getElementById("edit-overlay").style.display = "none";
+        editingId = null;
+      }
+      function saveEdit() {
+        const loc = document.getElementById("edit-loc").value.trim();
+        const start = document.getElementById("edit-start").value;
+        const end = document.getElementById("edit-end").value;
+        const notes = document.getElementById("edit-notes").value.trim();
+        const st = document.getElementById("edit-status");
+        if (!loc)
+          return (st.innerHTML =
+            '<span style="color:var(--red)">Location is required.</span>');
+        if (!start || !end)
+          return (st.innerHTML =
+            '<span style="color:var(--red)">Both dates are required.</span>');
+        if (new Date(start) > new Date(end))
+          return (st.innerHTML =
+            '<span style="color:var(--red)">Start must be before end.</span>');
+        const idx = records.findIndex((x) => x.id === editingId);
+        if (idx === -1) return;
+        records[idx] = {
+          ...records[idx],
+          location: loc,
+          dateRange: { startDate: start, endDate: end },
+          notes,
+          updatedAt: new Date().toISOString(),
+        };
+        saveRecords();
+        st.innerHTML = '<span style="color:var(--green)">Updated ✓</span>';
+        setTimeout(() => {
+          closeEdit();
+          renderRecords();
+        }, 900);
+      }
+
+      // ── DELETE ────────────────────────────────────────────────────────────────────
+      function openDelete(id) {
+        deletingId = id;
+        document.getElementById("del-overlay").style.display = "flex";
+      }
+      function closeDelete() {
+        document.getElementById("del-overlay").style.display = "none";
+        deletingId = null;
+      }
+      function confirmDelete() {
+        records = records.filter((r) => r.id !== deletingId);
+        saveRecords();
+        closeDelete();
+        renderRecords();
+      }
+
+      // ── EXPORT ────────────────────────────────────────────────────────────────────
+      function downloadFile(content, filename, type) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([content], { type }));
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+      function exportJSON() {
+        downloadFile(
+          JSON.stringify(
+            { exportedAt: new Date(), totalRecords: records.length, records },
+            null,
+            2,
+          ),
+          "weather_records.json",
+          "application/json",
+        );
+      }
+      function exportCSV() {
+        const h =
+          "id,location,startDate,endDate,temperature_c,humidity_pct,windSpeed_ms,description,notes,createdAt";
+        const rows = records.map((r) =>
+          [
+            r.id,
+            r.location,
+            r.dateRange.startDate,
+            r.dateRange.endDate,
+            r.weatherData?.temperature ?? "",
+            r.weatherData?.humidity ?? "",
+            r.weatherData?.windSpeed ?? "",
+            `"${r.weatherData?.description ?? ""}"`,
+            `"${r.notes ?? ""}"`,
+            r.createdAt,
+          ].join(","),
+        );
+        downloadFile(
+          [h, ...rows].join("\n"),
+          "weather_records.csv",
+          "text/csv",
+        );
+      }
+      function exportMarkdown() {
+        let md = `# Weather Records Export\n**Exported:** ${new Date().toISOString()}\n**Total:** ${records.length}\n\n---\n\n`;
+        records.forEach((r, i) => {
+          md += `## ${i + 1}. ${r.location}\n- **Dates:** ${r.dateRange.startDate} → ${r.dateRange.endDate}\n`;
+          md += `- **Temp:** ${r.weatherData?.temperature != null ? Math.round(r.weatherData.temperature) + "°C" : "N/A"} | **Humidity:** ${r.weatherData?.humidity ?? "N/A"}% | **Wind:** ${r.weatherData?.windSpeed ?? "N/A"} m/s\n`;
+          md += `- **Condition:** ${r.weatherData?.description ?? "N/A"}\n`;
+          if (r.notes) md += `- **Notes:** ${r.notes}\n`;
+          md += `\n---\n\n`;
+        });
+        downloadFile(md, "weather_records.md", "text/markdown");
+      }
+      function exportXML() {
+        const esc = (s) =>
+          String(s || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<WeatherRecords exportedAt="${new Date().toISOString()}">\n`;
+        records.forEach((r) => {
+          xml += `  <record id="${esc(r.id)}">\n    <location>${esc(r.location)}</location>\n    <startDate>${esc(r.dateRange.startDate)}</startDate>\n    <endDate>${esc(r.dateRange.endDate)}</endDate>\n    <temperature>${esc(r.weatherData?.temperature)}</temperature>\n    <humidity>${esc(r.weatherData?.humidity)}</humidity>\n    <windSpeed>${esc(r.weatherData?.windSpeed)}</windSpeed>\n    <description>${esc(r.weatherData?.description)}</description>\n    <notes>${esc(r.notes)}</notes>\n  </record>\n`;
+        });
+        xml += "</WeatherRecords>";
+        downloadFile(xml, "weather_records.xml", "application/xml");
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      renderRecords();
+    </script>
+  </body>
+</html>
